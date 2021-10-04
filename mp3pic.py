@@ -17,7 +17,7 @@ pub_version = "1.0.dev1"
 
 app_title = f"mp3pic.py - version {app_version}"
 
-ack_errors = True
+ack_errors = False
 
 
 def error_exit():
@@ -47,12 +47,29 @@ def get_args():
 
     args = ap.parse_args()
 
-    if not Path(args.mp3_file).exists():
+    mp3_path = Path(args.mp3_file)
+
+    if not mp3_path.exists():
         sys.stderr.write("ERROR: Cannot find '{0}'\n".format(args.mp3_file))
         error_exit()
 
-    if not Path(args.image_file).exists():
+    if not mp3_path.suffix.lower() == ".mp3":
+        sys.stderr.write(
+            "ERROR: Not a mp3 file name: '{0}'\n".format(args.mp3_file)
+        )
+        error_exit()
+
+    image_path = Path(args.image_file)
+
+    if not image_path.exists():
         sys.stderr.write("ERROR: Cannot find '{0}'\n".format(args.image_file))
+        error_exit()
+
+    #  TODO: Support other image types.
+    if not image_path.suffix.lower() == ".jpg":
+        sys.stderr.write(
+            "ERROR: Not a .jpg file name: '{0}'\n".format(args.image_file)
+        )
         error_exit()
 
     return (args.mp3_file, args.image_file)
@@ -69,7 +86,7 @@ def main():
 
     p = Path(mp3_file)
     output_path = p.parent.joinpath(
-        f"{0}__{1}.mp3".format(
+        "{0}__{1}.mp3".format(
             p.stem, datetime.now().strftime("%y%m%d_%H%M%S")
         )
     )

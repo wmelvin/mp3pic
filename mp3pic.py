@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 
 from datetime import datetime
-
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
-
 from pathlib import Path
+from PIL import Image
 import argparse
 import shutil
 import sys
 
 
-app_version = "211003.1"
+app_version = "211004.1"
 
 pub_version = "1.0.dev1"
 
 app_title = f"mp3pic.py - version {app_version}"
 
 ack_errors = False
+
+default_image_size = (300, 300)
 
 
 def error_exit():
@@ -72,22 +73,42 @@ def get_args():
         )
         error_exit()
 
-    return (args.mp3_file, args.image_file)
+    return (mp3_path, image_path)
+
+
+def make_temp_image_file(source_path, temp_path):
+    tmp_jpg = Image.new("RGB", default_image_size, (255, 255, 255))
+
+    cover_image = Image.open(source_path)
+
+    # TODO: Replace this brute-force resize with scale and crop.
+    cover_image = cover_image.resize(default_image_size)
+
+    tmp_jpg.paste(cover_image, (0, 0))
+
+    tmp_jpg.save(temp_path)
 
 
 def main():
     print(f"\n{app_title}\n")
 
-    mp3_file, image_file = get_args()
+    run_dt = datetime.now().strftime("%y%m%d_%H%M%S")
 
-    print(f"Reading '{mp3_file}'")
+    mp3_path, image_path = get_args()
 
-    print(f"Adding cover image '{image_file}'")
+    print(f"Reading '{mp3_path}'")
 
-    p = Path(mp3_file)
-    output_path = p.parent.joinpath(
+    print(f"Adding cover image '{image_path}'")
+
+    output_path = mp3_path.parent.joinpath(
         "{0}__{1}.mp3".format(
-            p.stem, datetime.now().strftime("%y%m%d_%H%M%S")
+            mp3_path.stem, run_dt
+        )
+    )
+
+    tmp_jpg_path = mp3_path.parent.joinpath(
+        "{0}__{1}.jpg".format(
+            image_path.stem, run_dt
         )
     )
 
@@ -100,9 +121,11 @@ def main():
     #  TODO: Use pillow to check image properties and potentially scale
     #  and crop to appropriate dimensions for embedding in the ID3 tag.
 
+    make_temp_image_file(image_path, tmp_jpg_path)
+
     #  Make a copy then modify the copy.
 
-    shutil.copyfile(mp3_file, str(output_path))
+    shutil.copyfile(mp3_path, output_path)
 
     audio = MP3(output_path, ID3=ID3)
 
@@ -112,12 +135,12 @@ def main():
         if str(e) != "an ID3 tag already exists":
             raise e
 
-    if image_file.lower().endswith(".png"):
+    if image_path.suffix.lower() == ".png":
         mime_type = "image/png"
     else:
         mime_type = "image/jpeg"
 
-    image_data = open(image_file, "rb").read()
+    image_data = open(tmp_jpg_path, "rb").read()
 
     audio.tags.add(
         APIC(
@@ -130,6 +153,8 @@ def main():
     )
 
     audio.save()
+
+    # TODO: Delete tmp jpg.
 
 
 if __name__ == "__main__":

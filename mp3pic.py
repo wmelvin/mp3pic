@@ -42,7 +42,8 @@ def get_args():
 
     ap.add_argument(
         "image_file",
-        help="Name of the image file to use as the " + "cover picture.",
+        help="Name of the image file to use as the cover picture. "
+        + "File type must be .jpeg, .jpg, or .png."
     )
 
     args = ap.parse_args()
@@ -65,8 +66,7 @@ def get_args():
         sys.stderr.write("ERROR: Cannot find '{0}'\n".format(args.image_file))
         error_exit()
 
-    #  TODO: Support other image types.
-    if not image_path.suffix.lower() == ".jpg":
+    if not image_path.suffix.lower() in [".jpg", ".jpeg", ".png"]:
         sys.stderr.write(
             "ERROR: Not a .jpg file name: '{0}'\n".format(args.image_file)
         )
@@ -112,13 +112,20 @@ def main():
         if str(e) != "an ID3 tag already exists":
             raise e
 
+    if image_file.lower().endswith(".png"):
+        mime_type = "image/png"
+    else:
+        mime_type = "image/jpeg"
+
+    image_data = open(image_file, "rb").read()
+
     audio.tags.add(
         APIC(
             encoding=3,
-            mime="image/jpeg",
+            mime=mime_type,
             type=3,
             desc="Cover",
-            data=open(image_file, "rb").read(),
+            data=image_data,
         )
     )
 

@@ -21,6 +21,8 @@ ack_errors = False
 
 default_image_size = (300, 300)
 
+jpg_quality = 60  # PIL default quality is 75.
+
 keep_tmp_jpg = True
 
 
@@ -128,7 +130,7 @@ def make_temp_image_file(source_path: Path, temp_path: Path):
         print(f"  New image size is {cover_image.size}.")
 
     tmp_jpg.paste(cover_image, (0, 0))
-    tmp_jpg.save(temp_path)
+    tmp_jpg.save(temp_path, quality=jpg_quality)
 
 
 def main():
@@ -180,7 +182,7 @@ def main():
             encoding=3,
             mime=mime_type,
             type=3,
-            desc="Cover",
+            desc="Cover Art (front)",
             data=image_data,
         )
     )

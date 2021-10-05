@@ -20,6 +20,8 @@ ack_errors = False
 
 default_image_size = (300, 300)
 
+keep_tmp_jpg = False
+
 
 def error_exit():
     print("*" * 70)
@@ -44,7 +46,7 @@ def get_args():
     ap.add_argument(
         "image_file",
         help="Name of the image file to use as the cover picture. "
-        + "File type must be .jpeg, .jpg, or .png."
+        + "File type must be .jpeg, .jpg, or .png.",
     )
 
     args = ap.parse_args()
@@ -77,6 +79,9 @@ def get_args():
 
 
 def make_temp_image_file(source_path, temp_path):
+    #  TODO: Check image properties and potentially scale and crop to
+    #  appropriate dimensions for embedding in the ID3 tag.
+
     tmp_jpg = Image.new("RGB", default_image_size, (255, 255, 255))
 
     cover_image = Image.open(source_path)
@@ -101,15 +106,11 @@ def main():
     print(f"Adding cover image '{image_path}'")
 
     output_path = mp3_path.parent.joinpath(
-        "{0}__{1}.mp3".format(
-            mp3_path.stem, run_dt
-        )
+        "{0}__{1}.mp3".format(mp3_path.stem, run_dt)
     )
 
     tmp_jpg_path = mp3_path.parent.joinpath(
-        "{0}__{1}.jpg".format(
-            image_path.stem, run_dt
-        )
+        "{0}__{1}.jpg".format(image_path.stem, run_dt)
     )
 
     print(f"Writing '{output_path}'")
@@ -117,9 +118,6 @@ def main():
     if output_path.exists():
         print("ERROR: Output file already exists.")
         error_exit()
-
-    #  TODO: Use pillow to check image properties and potentially scale
-    #  and crop to appropriate dimensions for embedding in the ID3 tag.
 
     make_temp_image_file(image_path, tmp_jpg_path)
 
@@ -154,7 +152,8 @@ def main():
 
     audio.save()
 
-    # TODO: Delete tmp jpg.
+    if not keep_tmp_jpg:
+        tmp_jpg_path.unlink()
 
 
 if __name__ == "__main__":

@@ -5,12 +5,13 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
 from pathlib import Path
 from PIL import Image
+from typing import Tuple
 import argparse
 import shutil
 import sys
 
 
-app_version = "211004.1"
+app_version = "211005.1"
 
 pub_version = "1.0.dev1"
 
@@ -20,7 +21,7 @@ ack_errors = False
 
 default_image_size = (300, 300)
 
-keep_tmp_jpg = False
+keep_tmp_jpg = True
 
 
 def error_exit():
@@ -32,7 +33,7 @@ def error_exit():
     sys.exit(1)
 
 
-def get_args():
+def get_args() -> Tuple[Path, Path]:
     ap = argparse.ArgumentParser(
         description="Add a picture tag to a mp3 file."
     )
@@ -78,19 +79,55 @@ def get_args():
     return (mp3_path, image_path)
 
 
-def make_temp_image_file(source_path, temp_path):
-    #  TODO: Check image properties and potentially scale and crop to
-    #  appropriate dimensions for embedding in the ID3 tag.
+def get_new_size_zoom(current_size, target_size):
+    scale_w = target_size[0] / current_size[0]
+    scale_h = target_size[1] / current_size[1]
+    scale_by = max(scale_w, scale_h)
+    return (int(current_size[0] * scale_by), int(current_size[1] * scale_by))
 
-    tmp_jpg = Image.new("RGB", default_image_size, (255, 255, 255))
 
+def get_crop_box(current_size, target_size):
+    cur_w, cur_h = current_size
+    trg_w, trg_h = target_size
+
+    if trg_w < cur_w:
+        x1, xm = divmod(cur_w - trg_w, 2)
+        x2 = cur_w - (x1 + xm)
+    else:
+        x1 = 0
+        x2 = trg_w
+
+    if trg_h < cur_h:
+        y1, ym = divmod(cur_h - trg_h, 2)
+        y2 = cur_h - (y1 + ym)
+    else:
+        y1 = 0
+        y2 = trg_h
+
+    return (x1, y1, x2, y2)
+
+
+def make_temp_image_file(source_path: Path, temp_path: Path):
+    default_rgb = (255, 255, 255)
+    tmp_jpg = Image.new("RGB", default_image_size, default_rgb)
+
+    print(f"Adding cover image '{source_path}'")
     cover_image = Image.open(source_path)
 
-    # TODO: Replace this brute-force resize with scale and crop.
-    cover_image = cover_image.resize(default_image_size)
+    if cover_image.size != default_image_size:
+        print(f"  Initial image size is {cover_image.size}.")
+        new_size = get_new_size_zoom(cover_image.size, default_image_size)
+        print(f"  Resizing to {new_size}.")
+        cover_image = cover_image.resize(new_size)
+
+        if cover_image.size != default_image_size:
+            crop_box = get_crop_box(cover_image.size, default_image_size)
+            print(f"  Cropping to box {crop_box}.")
+            cover_image = cover_image.crop(crop_box)
+
+        print(f"  New image size is {cover_image.size}.")
 
     tmp_jpg.paste(cover_image, (0, 0))
-
     tmp_jpg.save(temp_path)
 
 
@@ -102,8 +139,6 @@ def main():
     mp3_path, image_path = get_args()
 
     print(f"Reading '{mp3_path}'")
-
-    print(f"Adding cover image '{image_path}'")
 
     output_path = mp3_path.parent.joinpath(
         "{0}__{1}.mp3".format(mp3_path.stem, run_dt)

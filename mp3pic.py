@@ -23,13 +23,13 @@ default_image_size = (300, 300)
 
 jpg_quality = 60  # PIL default quality is 75.
 
-keep_tmp_jpg = True
+keep_tmpimg = True
 
 
 def error_exit():
     print("*" * 70)
     if ack_errors:
-        input("ERRORS: Press [Enter] to acknowledge. ")
+        input("ERRORS: Press [Enter]. ")
     else:
         print("Halted due to errors.")
     sys.exit(1)
@@ -57,25 +57,21 @@ def get_args() -> Tuple[Path, Path]:
     mp3_path = Path(args.mp3_file)
 
     if not mp3_path.exists():
-        sys.stderr.write("ERROR: Cannot find '{0}'\n".format(args.mp3_file))
+        sys.stderr.write(f"ERROR: Cannot find '{args.mp3_file}'\n")
         error_exit()
 
     if not mp3_path.suffix.lower() == ".mp3":
-        sys.stderr.write(
-            "ERROR: Not a mp3 file name: '{0}'\n".format(args.mp3_file)
-        )
+        sys.stderr.write(f"ERROR: Not a mp3 file name: '{args.mp3_file}'\n")
         error_exit()
 
     image_path = Path(args.image_file)
 
     if not image_path.exists():
-        sys.stderr.write("ERROR: Cannot find '{0}'\n".format(args.image_file))
+        sys.stderr.write(f"ERROR: Cannot find '{args.image_file}'\n")
         error_exit()
 
     if not image_path.suffix.lower() in [".jpg", ".jpeg", ".png"]:
-        sys.stderr.write(
-            "ERROR: Not a .jpg file name: '{0}'\n".format(args.image_file)
-        )
+        sys.stderr.write(f"ERROR: Not a .jpg file name: '{args.image_file}'\n")
         error_exit()
 
     return (mp3_path, image_path)
@@ -109,12 +105,12 @@ def get_crop_box(current_size, target_size):
     return (x1, y1, x2, y2)
 
 
-def make_temp_image_file(source_path: Path, temp_path: Path):
+def make_temp_image_file(imgage_path: Path, tmpimg_path: Path):
     default_rgb = (255, 255, 255)
     tmp_jpg = Image.new("RGB", default_image_size, default_rgb)
 
-    print(f"Adding cover image '{source_path}'")
-    cover_image = Image.open(source_path)
+    print(f"Adding cover image '{imgage_path}'")
+    cover_image = Image.open(imgage_path)
 
     if cover_image.size != default_image_size:
         print(f"  Initial image size is {cover_image.size}.")
@@ -130,7 +126,7 @@ def make_temp_image_file(source_path: Path, temp_path: Path):
         print(f"  New image size is {cover_image.size}.")
 
     tmp_jpg.paste(cover_image, (0, 0))
-    tmp_jpg.save(temp_path, quality=jpg_quality)
+    tmp_jpg.save(tmpimg_path, quality=jpg_quality)
 
 
 def main():
@@ -142,13 +138,9 @@ def main():
 
     print(f"Reading '{mp3_path}'")
 
-    output_path = mp3_path.parent.joinpath(
-        "{0}__{1}.mp3".format(mp3_path.stem, run_dt)
-    )
+    output_path = mp3_path.parent.joinpath(f"{mp3_path.stem}__{run_dt}.mp3")
 
-    tmp_jpg_path = mp3_path.parent.joinpath(
-        "{0}__{1}.jpg".format(image_path.stem, run_dt)
-    )
+    tmpimg_path = mp3_path.parent.joinpath(f"{image_path.stem}__{run_dt}.jpg")
 
     print(f"Writing '{output_path}'")
 
@@ -156,9 +148,9 @@ def main():
         print("ERROR: Output file already exists.")
         error_exit()
 
-    make_temp_image_file(image_path, tmp_jpg_path)
+    make_temp_image_file(image_path, tmpimg_path)
 
-    #  Make a copy then modify the copy.
+    #  Make a copy of the mp3 file, then modify the copy.
 
     shutil.copyfile(mp3_path, output_path)
 
@@ -175,7 +167,7 @@ def main():
     else:
         mime_type = "image/jpeg"
 
-    image_data = open(tmp_jpg_path, "rb").read()
+    image_data = open(tmpimg_path, "rb").read()
 
     audio.tags.add(
         APIC(
@@ -189,8 +181,8 @@ def main():
 
     audio.save()
 
-    if not keep_tmp_jpg:
-        tmp_jpg_path.unlink()
+    if not keep_tmpimg:
+        tmpimg_path.unlink()
 
 
 if __name__ == "__main__":

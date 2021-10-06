@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 
+from collections import namedtuple
 from datetime import datetime
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
 from pathlib import Path
 from PIL import Image
-from typing import Tuple
+
 import argparse
 import shutil
 import sys
 
 
-app_version = "211005.1"
+app_version = "211006.1"
 
 pub_version = "1.0.dev1"
 
@@ -23,9 +24,10 @@ default_image_size = (300, 300)
 
 jpg_quality = 60  # PIL default quality is 75.
 
-keep_tmpimg = False
 
-delete_existing_tags = True
+AppOptions = namedtuple(
+    "AppOptions", "mp3_path, image_path, out_path, del_tags, keep_tmpimg"
+)
 
 
 def error_exit():
@@ -37,7 +39,7 @@ def error_exit():
     sys.exit(1)
 
 
-def get_args() -> Tuple[Path, Path]:
+def get_options() -> AppOptions:
     ap = argparse.ArgumentParser(
         description="Add a picture tag to a mp3 file."
     )
@@ -52,6 +54,35 @@ def get_args() -> Tuple[Path, Path]:
         "image_file",
         help="Name of the image file to use as the cover picture. "
         + "File type must be .jpeg, .jpg, or .png.",
+    )
+
+    ap.add_argument(
+        "-o",
+        "--output-file",
+        dest="output_file",
+        action="store",
+        help="Optional. Name of output file. Default output file name is the "
+        + "source file name with a date_time stamp added on the right. "
+        + "If the specified output file already exists it will not be "
+        + "replaced.",
+    )
+
+    ap.add_argument(
+        "-d",
+        "--delete-tags",
+        dest="del_tags",
+        action="store_true",
+        help="Optional. Delete existing ID3 tags before adding the picture "
+        + "tag.",
+    )
+
+    ap.add_argument(
+        "-k",
+        "--keep-image",
+        dest="keep_image",
+        action="store_true",
+        help="Optional. Keep the temporary image (jpg) file used to add the "
+        + "picture tag.",
     )
 
     args = ap.parse_args()
@@ -76,7 +107,23 @@ def get_args() -> Tuple[Path, Path]:
         sys.stderr.write(f"ERROR: Not a .jpg file name: '{args.image_file}'\n")
         error_exit()
 
-    return (mp3_path, image_path)
+    if args.output_file is None:
+        out_path = None
+    else:
+        out_path = Path(args.output_file)
+        if out_path.exists():
+            sys.stderr.write(
+                f"ERROR: Cannot overwrite: '{args.output_file}'\n"
+            )
+            error_exit()
+
+    return AppOptions(
+        mp3_path,
+        image_path,
+        out_path,
+        bool(args.del_tags),
+        bool(args.keep_image),
+    )
 
 
 def get_new_size_zoom(current_size, target_size):
@@ -136,13 +183,20 @@ def main():
 
     run_dt = datetime.now().strftime("%y%m%d_%H%M%S")
 
-    mp3_path, image_path = get_args()
+    opt = get_options()
 
-    print(f"Reading '{mp3_path}'")
+    print(f"Reading '{opt.mp3_path}'")
 
-    output_path = mp3_path.parent.joinpath(f"{mp3_path.stem}__{run_dt}.mp3")
+    if opt.out_path is None:
+        output_path = opt.mp3_path.parent.joinpath(
+            f"{opt.mp3_path.stem}__{run_dt}.mp3"
+        )
+    else:
+        output_path = opt.out_path
 
-    tmpimg_path = mp3_path.parent.joinpath(f"{image_path.stem}__{run_dt}.jpg")
+    tmpimg_path = opt.mp3_path.parent.joinpath(
+        f"{opt.image_path.stem}__{run_dt}.jpg"
+    )
 
     print(f"Writing '{output_path}'")
 
@@ -150,13 +204,13 @@ def main():
         print("ERROR: Output file already exists.")
         error_exit()
 
-    make_temp_image_file(image_path, tmpimg_path)
+    make_temp_image_file(opt.image_path, tmpimg_path)
 
     #  Make a copy of the mp3 file, then modify the copy.
 
-    shutil.copyfile(mp3_path, output_path)
+    shutil.copyfile(opt.mp3_path, output_path)
 
-    if delete_existing_tags:
+    if opt.del_tags:
         a = MP3(output_path, ID3=ID3)
         if a.tags is None:
             print("No existing tags.")
@@ -175,7 +229,7 @@ def main():
         if str(e) != "an ID3 tag already exists":
             raise e
 
-    if image_path.suffix.lower() == ".png":
+    if opt.image_path.suffix.lower() == ".png":
         mime_type = "image/png"
     else:
         mime_type = "image/jpeg"
@@ -194,7 +248,9 @@ def main():
 
     audio.save()
 
-    if not keep_tmpimg:
+    if opt.keep_tmpimg:
+        print(f"Temporary image '{tmpimg_path}' not deleted.")
+    else:
         tmpimg_path.unlink()
 
 

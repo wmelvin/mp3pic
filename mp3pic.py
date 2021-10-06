@@ -23,7 +23,9 @@ default_image_size = (300, 300)
 
 jpg_quality = 60  # PIL default quality is 75.
 
-keep_tmpimg = True
+keep_tmpimg = False
+
+delete_existing_tags = True
 
 
 def error_exit():
@@ -154,10 +156,21 @@ def main():
 
     shutil.copyfile(mp3_path, output_path)
 
+    if delete_existing_tags:
+        a = MP3(output_path, ID3=ID3)
+        if a.tags is None:
+            print("No existing tags.")
+        else:
+            print("Delete existing tags.")
+            tags = ID3(output_path)
+            tags.delete(None, delete_v1=True, delete_v2=True)
+            tags.save()
+
     audio = MP3(output_path, ID3=ID3)
 
     try:
         audio.add_tags()
+        print("Added tags.")
     except Exception as e:
         if str(e) != "an ID3 tag already exists":
             raise e

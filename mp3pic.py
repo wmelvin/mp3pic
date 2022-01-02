@@ -12,9 +12,9 @@ import shutil
 import sys
 
 
-app_version = "211006.1"
+app_version = "220101.1"
 
-pub_version = "1.0.dev1"
+pub_version = "0.1.dev1"
 
 app_title = f"mp3pic.py - version {app_version}"
 
@@ -39,7 +39,7 @@ def error_exit():
     sys.exit(1)
 
 
-def get_options() -> AppOptions:
+def get_options(argv) -> AppOptions:
     ap = argparse.ArgumentParser(
         description="Add a picture tag to a mp3 file."
     )
@@ -85,7 +85,7 @@ def get_options() -> AppOptions:
         + "picture tag.",
     )
 
-    args = ap.parse_args()
+    args = ap.parse_args(argv[1:])
 
     mp3_path = Path(args.mp3_file)
 
@@ -178,12 +178,12 @@ def make_temp_image_file(imgage_path: Path, tmpimg_path: Path):
     tmp_jpg.save(tmpimg_path, quality=jpg_quality)
 
 
-def main():
+def main(argv):
     print(f"\n{app_title}\n")
 
     run_dt = datetime.now().strftime("%y%m%d_%H%M%S")
 
-    opt = get_options()
+    opt = get_options(argv)
 
     print(f"Reading '{opt.mp3_path}'")
 
@@ -253,6 +253,8 @@ def main():
     else:
         tmpimg_path.unlink()
 
+    return 0
 
-if __name__ == "__main__":
-    main()
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

@@ -12,7 +12,7 @@ import shutil
 import sys
 
 
-app_version = "220101.1"
+app_version = "220110.1"
 
 pub_version = "0.1.dev1"
 
@@ -104,7 +104,9 @@ def get_options(argv) -> AppOptions:
         error_exit()
 
     if not image_path.suffix.lower() in [".jpg", ".jpeg", ".png"]:
-        sys.stderr.write(f"ERROR: Not a .jpg file name: '{args.image_file}'\n")
+        sys.stderr.write(
+            f"ERROR: Not a supported image file type: '{args.image_file}'\n"
+        )
         error_exit()
 
     if args.output_file is None:
@@ -256,5 +258,5 @@ def main(argv):
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -47,13 +47,13 @@ def get_options(argv) -> AppOptions:
     ap.add_argument(
         "mp3_file",
         help="Name of the source mp3 file to modify. "
-        + "The modified version will be given a new name.",
+        "The modified version will be given a new name.",
     )
 
     ap.add_argument(
         "image_file",
         help="Name of the image file to use as the cover picture. "
-        + "File type must be .jpeg, .jpg, or .png.",
+        "File type must be .jpeg, .jpg, or .png.",
     )
 
     ap.add_argument(
@@ -62,9 +62,9 @@ def get_options(argv) -> AppOptions:
         dest="output_file",
         action="store",
         help="Optional. Name of output file. Default output file name is the "
-        + "source file name with a date_time stamp added on the right. "
-        + "If the specified output file already exists it will not be "
-        + "replaced.",
+        "source file name with a date_time stamp added on the right. "
+        "If the specified output file already exists it will not be "
+        "replaced.",
     )
 
     ap.add_argument(
@@ -73,7 +73,7 @@ def get_options(argv) -> AppOptions:
         dest="del_tags",
         action="store_true",
         help="Optional. Delete existing ID3 tags before adding the picture "
-        + "tag.",
+        "tag.",
     )
 
     ap.add_argument(
@@ -82,7 +82,7 @@ def get_options(argv) -> AppOptions:
         dest="keep_image",
         action="store_true",
         help="Optional. Keep the temporary image (jpg) file used to add the "
-        + "picture tag.",
+        "picture tag.",
     )
 
     args = ap.parse_args(argv[1:])

@@ -10,7 +10,7 @@ The [Pillow](https://pypi.org/project/Pillow/) library is used to modify the ima
 ## Usage
 
 ```
-usage: mp3pic.py [-h] [-o OUTPUT_FILE] [-d] [-k] mp3_file image_file
+usage: mp3pic [-h] [-o OUTPUT_FILE] [-d] [-k] mp3_file image_file
 
 Add a picture tag to a mp3 file.
 
@@ -58,7 +58,7 @@ User Guide: [Dealing with Frame Uniqueness of ID3 Frames](https://mutagen.readth
 
 ### Pillow
 
-Pillow — Pillow (PIL Fork) [documentation](https://pillow.readthedocs.io/en/stable/)
+Pillow (PIL Fork) [documentation](https://pillow.readthedocs.io/en/stable/)
 
 [Image.resize](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.resize)
 

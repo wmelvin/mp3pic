@@ -2,10 +2,10 @@
 Rather than trying to mock all the things, these tests require some local test
 data files.
 
-The location of those files is set configured using variables in a '.env'
-file with the following variables:
+The location of those files is configured in a '.env' file with the following
+variables:
 
-TEST_MP3_FILE="<path-to-mp3-file>"
+TEST_MP3_FILE="<path-to-file>.mp3"
 TEST_IMG_300="<path-to-image-300x300px>.<jpg|png>"
 TEST_IMG_GT_300="<path-to-image-greater-than-300x300px>.<jpg|png>"
 TEST_IMG_LT_300="<path-to-image-less-than-300x300px>.<jpg|png>"
@@ -124,7 +124,7 @@ def test_mp3pic_scale_down(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
 
 def test_mp3pic_scale_up(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
     _, src_mp3 = temp_mp3file
-    out_mp3 = tmp_path / "example-scale-down.mp3"
+    out_mp3 = tmp_path / "example-scale-up.mp3"
     src_img = Path(os.environ.get("TEST_IMG_LT_300"))
 
     #  Make a copy of the original image for review under tmp.
@@ -148,7 +148,7 @@ def test_mp3pic_crop_height_and_delete_tags(
     temp_mp3file: Tuple[Path, Path], tmp_path: Path
 ):
     _, src_mp3 = temp_mp3file
-    out_mp3 = tmp_path / "example-scale-down.mp3"
+    out_mp3 = tmp_path / "example-crop-height.mp3"
     src_img = Path(os.environ.get("TEST_IMG_HT_GT_300"))
 
     #  Make a copy of the original image for review under tmp.
@@ -173,7 +173,7 @@ def test_mp3pic_crop_width_and_delete_tags(
     temp_mp3file: Tuple[Path, Path], tmp_path: Path
 ):
     _, src_mp3 = temp_mp3file
-    out_mp3 = tmp_path / "example-scale-down.mp3"
+    out_mp3 = tmp_path / "example-crop-width.mp3"
     src_img = Path(os.environ.get("TEST_IMG_WD_LT_300"))
 
     #  Make a copy of the original image for review under tmp.

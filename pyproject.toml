@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mp3pic"
+dynamic = ["version"]
+description = 'Command-line utility to add a cover-art image to a mp3 file.'
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+keywords = [ "mp3", "id3"]
+
+authors = [
+  { name = "Bill Melvin", email = "bill@sbillmelvin.com" },
+]
+
+dependencies = [ "mutagen", "pillow" ]
+
+[project.urls]
+Source = "https://github.com/wmelvin/mp3pic"
+
+[tool.setuptools.dynamic]
+version = {attr = "mp3pic.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mp3pic*"]
+exclude = ["test*"]
+namespaces = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[project.scripts]
+mp3pic = "mp3pic:main"

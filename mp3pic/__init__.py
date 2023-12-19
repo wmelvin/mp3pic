@@ -12,11 +12,9 @@ import shutil
 import sys
 
 
-app_version = "220110.1"
+__version__ = "0.1.dev2"
 
-pub_version = "0.1.dev1"
-
-app_title = f"mp3pic.py - version {app_version}"
+app_title = f"mp3pic.py - version {__version__}"
 
 ack_errors = False
 
@@ -39,7 +37,7 @@ def error_exit():
     sys.exit(1)
 
 
-def get_options(argv) -> AppOptions:
+def get_options(arglist=None) -> AppOptions:
     ap = argparse.ArgumentParser(
         description="Add a picture tag to a mp3 file."
     )
@@ -85,7 +83,7 @@ def get_options(argv) -> AppOptions:
         "picture tag.",
     )
 
-    args = ap.parse_args(argv[1:])
+    args = ap.parse_args(arglist)
 
     mp3_path = Path(args.mp3_file)
 
@@ -180,12 +178,12 @@ def make_temp_image_file(imgage_path: Path, tmpimg_path: Path):
     tmp_jpg.save(tmpimg_path, quality=jpg_quality)
 
 
-def main(argv):
+def main(arglist=None):
     print(f"\n{app_title}\n")
 
     run_dt = datetime.now().strftime("%y%m%d_%H%M%S")
 
-    opt = get_options(argv)
+    opt = get_options(arglist)
 
     print(f"Reading '{opt.mp3_path}'")
 
@@ -196,7 +194,7 @@ def main(argv):
     else:
         output_path = opt.out_path
 
-    tmpimg_path = opt.mp3_path.parent.joinpath(
+    tmpimg_path = output_path.parent.joinpath(
         f"{opt.image_path.stem}__{run_dt}.jpg"
     )
 
@@ -259,4 +257,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main()

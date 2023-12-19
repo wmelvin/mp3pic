@@ -11,8 +11,6 @@ __pycache__/
 .vscode/
 
 # App-specific.
-_0_bak/
 images/
-sausage.sh
 try_*.py
-wipbak-list.txt
+_test_output.txt

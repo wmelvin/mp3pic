@@ -17,24 +17,22 @@ can be reviewed visually to make sure the added images look correct in
 the resulting mp3 files.
 """
 
+from __future__ import annotations
+
+import os
+import shutil
 from pathlib import Path
-from typing import Tuple
 
 import dotenv
 import pytest
-import os
-import shutil
 
 import mp3pic
-
 
 dotenv.load_dotenv()
 
 
 @pytest.fixture(scope="module")
-def temp_mp3file(
-    tmp_path_factory: pytest.TempPathFactory
-) -> Tuple[Path, Path]:
+def temp_mp3file(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path]:
     dir_path = tmp_path_factory.mktemp("test_mp3")
     mp3_path = dir_path / "example.mp3"
     if not mp3_path.exists():
@@ -61,7 +59,7 @@ def test_dotenv():
     assert img5
 
 
-def test_example_mp3_exists(temp_mp3file: Tuple[Path, Path]):
+def test_example_mp3_exists(temp_mp3file: tuple[Path, Path]):
     test_dir, mp3_path = temp_mp3file
     assert mp3_path.exists()
 
@@ -70,7 +68,7 @@ def test_example_mp3_exists(temp_mp3file: Tuple[Path, Path]):
     (Path.cwd() / "_test_output.txt").write_text(str(test_dir))
 
 
-def test_mp3pic_default(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
+def test_mp3pic_default(temp_mp3file: tuple[Path, Path], tmp_path: Path):
     test_dir, mp3 = temp_mp3file
     img = os.environ.get("TEST_IMG_300")
     assert Path(img).exists()
@@ -80,23 +78,18 @@ def test_mp3pic_default(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
     assert len(list(test_dir.glob("*.mp3"))) == n_mp3 + 1
 
 
-def test_mp3pic_output(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
+def test_mp3pic_output(temp_mp3file: tuple[Path, Path], tmp_path: Path):
     _, mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-with-cover-art.mp3"
     img = os.environ.get("TEST_IMG_300")
-    args = [
-        str(mp3),
-        img,
-        "--output-file",
-        str(out_mp3)
-    ]
+    args = [str(mp3), img, "--output-file", str(out_mp3)]
     mp3pic.main(args)
     files = list(out_mp3.parent.glob("*.mp3"))
     assert len(files) == 1
     assert out_mp3.name in [x.name for x in files]
 
 
-def test_mp3pic_scale_down(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
+def test_mp3pic_scale_down(temp_mp3file: tuple[Path, Path], tmp_path: Path):
     _, src_mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-scale-down.mp3"
     src_img = Path(os.environ.get("TEST_IMG_GT_300"))
@@ -105,13 +98,7 @@ def test_mp3pic_scale_down(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
     img_copy = tmp_path / f"{src_img.stem}-orig{src_img.suffix}"
     shutil.copy(str(src_img), str(img_copy))
 
-    args = [
-        str(src_mp3),
-        str(src_img),
-        "-k",
-        "--output-file",
-        str(out_mp3)
-    ]
+    args = [str(src_mp3), str(src_img), "-k", "--output-file", str(out_mp3)]
     mp3pic.main(args)
     files = list(out_mp3.parent.glob("*.mp3"))
     assert len(files) == 1
@@ -122,7 +109,7 @@ def test_mp3pic_scale_down(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
     assert len(list(out_mp3.parent.glob(f"*{src_img.suffix}"))) == 1
 
 
-def test_mp3pic_scale_up(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
+def test_mp3pic_scale_up(temp_mp3file: tuple[Path, Path], tmp_path: Path):
     _, src_mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-scale-up.mp3"
     src_img = Path(os.environ.get("TEST_IMG_LT_300"))
@@ -131,13 +118,7 @@ def test_mp3pic_scale_up(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
     img_copy = tmp_path / f"{src_img.stem}-orig{src_img.suffix}"
     shutil.copy(str(src_img), str(img_copy))
 
-    args = [
-        str(src_mp3),
-        str(src_img),
-        "--keep-image",
-        "--output-file",
-        str(out_mp3)
-    ]
+    args = [str(src_mp3), str(src_img), "--keep-image", "--output-file", str(out_mp3)]
     mp3pic.main(args)
     files = list(out_mp3.parent.glob("*.mp3"))
     assert len(files) == 1
@@ -145,7 +126,7 @@ def test_mp3pic_scale_up(temp_mp3file: Tuple[Path, Path], tmp_path: Path):
 
 
 def test_mp3pic_crop_height_and_delete_tags(
-    temp_mp3file: Tuple[Path, Path], tmp_path: Path
+    temp_mp3file: tuple[Path, Path], tmp_path: Path
 ):
     _, src_mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-crop-height.mp3"
@@ -161,7 +142,7 @@ def test_mp3pic_crop_height_and_delete_tags(
         "--delete-tags",
         "--keep-image",
         "--output-file",
-        str(out_mp3)
+        str(out_mp3),
     ]
     mp3pic.main(args)
     files = list(out_mp3.parent.glob("*.mp3"))
@@ -170,7 +151,7 @@ def test_mp3pic_crop_height_and_delete_tags(
 
 
 def test_mp3pic_crop_width_and_delete_tags(
-    temp_mp3file: Tuple[Path, Path], tmp_path: Path
+    temp_mp3file: tuple[Path, Path], tmp_path: Path
 ):
     _, src_mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-crop-width.mp3"
@@ -180,14 +161,7 @@ def test_mp3pic_crop_width_and_delete_tags(
     img_copy = tmp_path / f"{src_img.stem}-orig{src_img.suffix}"
     shutil.copy(str(src_img), str(img_copy))
 
-    args = [
-        str(src_mp3),
-        str(src_img),
-        "-d",
-        "-k",
-        "--output-file",
-        str(out_mp3)
-    ]
+    args = [str(src_mp3), str(src_img), "-d", "-k", "--output-file", str(out_mp3)]
     mp3pic.main(args)
     files = list(out_mp3.parent.glob("*.mp3"))
     assert len(files) == 1

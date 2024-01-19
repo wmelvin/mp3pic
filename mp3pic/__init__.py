@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
-from collections import namedtuple
-from datetime import datetime
-from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC
-from pathlib import Path
-from PIL import Image
+from __future__ import annotations
 
 import argparse
 import shutil
 import sys
+from datetime import datetime
+from pathlib import Path
+from typing import NamedTuple
 
+from mutagen.id3 import APIC, ID3
+from mutagen.mp3 import MP3
+from PIL import Image
 
-__version__ = "0.1.dev2"
+__version__ = "2024.01.1"
 
-app_title = f"mp3pic.py - version {__version__}"
+app_title = f"mp3pic.py (v{__version__})"
 
 ack_errors = False
 
@@ -23,9 +24,12 @@ default_image_size = (300, 300)
 jpg_quality = 60  # PIL default quality is 75.
 
 
-AppOptions = namedtuple(
-    "AppOptions", "mp3_path, image_path, out_path, del_tags, keep_tmpimg"
-)
+class AppOptions(NamedTuple):
+    mp3_path: Path
+    image_path: Path
+    out_path: Path | None
+    del_tags: bool
+    keep_tmpimg: bool
 
 
 def error_exit():
@@ -38,9 +42,7 @@ def error_exit():
 
 
 def get_options(arglist=None) -> AppOptions:
-    ap = argparse.ArgumentParser(
-        description="Add a picture tag to a mp3 file."
-    )
+    ap = argparse.ArgumentParser(description="Add a picture tag to a mp3 file.")
 
     ap.add_argument(
         "mp3_file",
@@ -70,8 +72,7 @@ def get_options(arglist=None) -> AppOptions:
         "--delete-tags",
         dest="del_tags",
         action="store_true",
-        help="Optional. Delete existing ID3 tags before adding the picture "
-        "tag.",
+        help="Optional. Delete existing ID3 tags before adding the picture tag.",
     )
 
     ap.add_argument(
@@ -91,7 +92,7 @@ def get_options(arglist=None) -> AppOptions:
         sys.stderr.write(f"ERROR: Cannot find '{args.mp3_file}'\n")
         error_exit()
 
-    if not mp3_path.suffix.lower() == ".mp3":
+    if mp3_path.suffix.lower() != ".mp3":
         sys.stderr.write(f"ERROR: Not a mp3 file name: '{args.mp3_file}'\n")
         error_exit()
 
@@ -101,7 +102,7 @@ def get_options(arglist=None) -> AppOptions:
         sys.stderr.write(f"ERROR: Cannot find '{args.image_file}'\n")
         error_exit()
 
-    if not image_path.suffix.lower() in [".jpg", ".jpeg", ".png"]:
+    if image_path.suffix.lower() not in [".jpg", ".jpeg", ".png"]:
         sys.stderr.write(
             f"ERROR: Not a supported image file type: '{args.image_file}'\n"
         )
@@ -112,9 +113,7 @@ def get_options(arglist=None) -> AppOptions:
     else:
         out_path = Path(args.output_file)
         if out_path.exists():
-            sys.stderr.write(
-                f"ERROR: Cannot overwrite: '{args.output_file}'\n"
-            )
+            sys.stderr.write(f"ERROR: Cannot overwrite: '{args.output_file}'\n")
             error_exit()
 
     return AppOptions(
@@ -178,7 +177,7 @@ def make_temp_image_file(imgage_path: Path, tmpimg_path: Path):
     tmp_jpg.save(tmpimg_path, quality=jpg_quality)
 
 
-def main(arglist=None):
+def main(arglist=None):  # noqa: PLR0912
     print(f"\n{app_title}\n")
 
     run_dt = datetime.now().strftime("%y%m%d_%H%M%S")
@@ -188,15 +187,11 @@ def main(arglist=None):
     print(f"Reading '{opt.mp3_path}'")
 
     if opt.out_path is None:
-        output_path = opt.mp3_path.parent.joinpath(
-            f"{opt.mp3_path.stem}__{run_dt}.mp3"
-        )
+        output_path = opt.mp3_path.parent.joinpath(f"{opt.mp3_path.stem}__{run_dt}.mp3")
     else:
         output_path = opt.out_path
 
-    tmpimg_path = output_path.parent.joinpath(
-        f"{opt.image_path.stem}__{run_dt}.jpg"
-    )
+    tmpimg_path = output_path.parent.joinpath(f"{opt.image_path.stem}__{run_dt}.jpg")
 
     print(f"Writing '{output_path}'")
 
@@ -229,12 +224,9 @@ def main(arglist=None):
         if str(e) != "an ID3 tag already exists":
             raise e
 
-    if opt.image_path.suffix.lower() == ".png":
-        mime_type = "image/png"
-    else:
-        mime_type = "image/jpeg"
+    mime_type = "image/png" if opt.image_path.suffix.lower() == ".png" else "image/jpeg"
 
-    image_data = open(tmpimg_path, "rb").read()
+    image_data = tmpimg_path.open("rb").read()
 
     audio.tags.add(
         APIC(

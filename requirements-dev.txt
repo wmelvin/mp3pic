@@ -1,6 +1,0 @@
-black
-flake8
-build
-pip-tools
-pytest
-python-dotenv

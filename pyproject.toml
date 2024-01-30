@@ -12,7 +12,7 @@ license = {file = "LICENSE"}
 keywords = [ "mp3", "id3"]
 
 authors = [
-  { name = "Bill Melvin", email = "bill@sbillmelvin.com" },
+  { name = "Bill Melvin", email = "bill@billmelvin.com" },
 ]
 
 dependencies = [ "mutagen", "pillow" ]

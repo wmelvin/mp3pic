@@ -12,6 +12,3 @@ build = "*"
 pytest = "*"
 python-dotenv = "*"
 ruff = "*"
-
-[requires]
-python_version = "3.12"

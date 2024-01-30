@@ -25,4 +25,4 @@
 
 @test:
   echo 'Run pytest'
-  pipenv run pytest
+  pipenv run pytest -vv

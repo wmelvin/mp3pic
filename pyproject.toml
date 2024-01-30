@@ -58,6 +58,7 @@ select = [
     "SIM",  # flake8-simplify
     "W"     # Warning
 ]
+ignore = ["ISC001"]
 # extend-select = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]

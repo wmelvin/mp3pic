@@ -3,11 +3,11 @@
 
 @build: test lint check
   echo 'Run pyproject-build'
-  pipenv run pyproject-build
+  uv build
 
 @check:
   echo 'Run ruff format --check'
-  pipenv run ruff format --check
+  uv run ruff format --check
 
 @clean:
   rm dist/*
@@ -17,12 +17,12 @@
 
 @format:
   echo 'Run ruff format'
-  pipenv run ruff format
+  uv run ruff format
 
 @lint:
   echo 'Run ruff check'
-  pipenv run ruff check
+  uv run ruff check
 
 @test:
   echo 'Run pytest'
-  pipenv run pytest -vv
+  uv run pytest -vv

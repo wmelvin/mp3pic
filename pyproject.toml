@@ -15,7 +15,10 @@ authors = [
   { name = "Bill Melvin", email = "bill@billmelvin.com" },
 ]
 
-dependencies = [ "mutagen", "pillow" ]
+dependencies = [
+ "mutagen",
+ "pillow",
+]
 
 [project.urls]
 Source = "https://github.com/wmelvin/mp3pic"
@@ -64,4 +67,12 @@ ignore = ["ISC001"]
 [tool.ruff.lint.per-file-ignores]
 "**/test_*.py" = [
     "S101",    # assert
+]
+
+[dependency-groups]
+dev = [
+    "build>=1.2.2.post1",
+    "pytest>=8.3.5",
+    "python-dotenv>=1.0.1",
+    "ruff>=0.11.9",
 ]

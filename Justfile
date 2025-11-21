@@ -10,10 +10,9 @@
   uv run ruff format --check
 
 @clean:
-  rm dist/*
-  rmdir dist
-  rm mp3pic.egg-info/*
-  rmdir mp3pic.egg-info
+  -rm dist/*
+  -rm mp3pic.egg-info/*
+  -rmdir mp3pic.egg-info
 
 @format:
   echo 'Run ruff format'

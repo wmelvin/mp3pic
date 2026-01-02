@@ -64,7 +64,7 @@ def temp_mp3file(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path]:
     mp3_path = dir_path / "example.mp3"
     if not mp3_path.exists():
         s = os.environ.get("TEST_MP3_FILE")
-        src_mp3 = Path(s).expanduser().resolve()
+        src_mp3 = Path(str(s)).expanduser().resolve()
         assert src_mp3.exists()
         shutil.copy(str(src_mp3), str(mp3_path))
     assert mp3_path.exists()
@@ -85,7 +85,7 @@ def test_example_mp3_exists(temp_mp3file: tuple[Path, Path]):
 def test_mp3pic_default(temp_mp3file: tuple[Path, Path], tmp_path: Path):
     test_dir, mp3 = temp_mp3file
     img = os.environ.get("TEST_IMG_300")
-    assert Path(img).exists()
+    assert Path(str(img)).exists()
     n_mp3 = len(list(test_dir.glob("*.mp3")))
     args = [str(mp3), img]
     mp3pic.main(args)
@@ -108,7 +108,7 @@ def test_mp3pic_output(temp_mp3file: tuple[Path, Path], tmp_path: Path):
 def test_mp3pic_scale_down(temp_mp3file: tuple[Path, Path], tmp_path: Path):
     _, src_mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-scale-down.mp3"
-    src_img = Path(os.environ.get("TEST_IMG_GT_300"))
+    src_img = Path(str(os.environ.get("TEST_IMG_GT_300")))
 
     #  Make a copy of the original image for review under tmp.
     img_copy = tmp_path / f"{src_img.stem}-orig{src_img.suffix}"
@@ -129,7 +129,7 @@ def test_mp3pic_scale_down(temp_mp3file: tuple[Path, Path], tmp_path: Path):
 def test_mp3pic_scale_up(temp_mp3file: tuple[Path, Path], tmp_path: Path):
     _, src_mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-scale-up.mp3"
-    src_img = Path(os.environ.get("TEST_IMG_LT_300"))
+    src_img = Path(str(os.environ.get("TEST_IMG_LT_300")))
 
     #  Make a copy of the original image for review under tmp.
     img_copy = tmp_path / f"{src_img.stem}-orig{src_img.suffix}"
@@ -148,7 +148,7 @@ def test_mp3pic_crop_height_and_delete_tags(
 ):
     _, src_mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-crop-height.mp3"
-    src_img = Path(os.environ.get("TEST_IMG_HT_GT_300"))
+    src_img = Path(str(os.environ.get("TEST_IMG_HT_GT_300")))
 
     #  Make a copy of the original image for review under tmp.
     img_copy = tmp_path / f"{src_img.stem}-orig{src_img.suffix}"
@@ -174,7 +174,7 @@ def test_mp3pic_crop_width_and_delete_tags(
 ):
     _, src_mp3 = temp_mp3file
     out_mp3 = tmp_path / "example-crop-width.mp3"
-    src_img = Path(os.environ.get("TEST_IMG_WD_LT_300"))
+    src_img = Path(str(os.environ.get("TEST_IMG_WD_LT_300")))
 
     #  Make a copy of the original image for review under tmp.
     img_copy = tmp_path / f"{src_img.stem}-orig{src_img.suffix}"

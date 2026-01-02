@@ -13,7 +13,8 @@ from mutagen.id3 import APIC, ID3
 from mutagen.mp3 import MP3
 from PIL import Image
 
-__version__ = "2025.11.1"
+#  Using calver (YYYY.0M.MICRO).
+__version__ = "2026.01.1"
 
 app_title = f"mp3pic.py (v{__version__})"
 

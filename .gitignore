@@ -2,6 +2,7 @@
 private/
 notes-private.txt
 .env
+temp.*
 
 # Python.
 .venv/

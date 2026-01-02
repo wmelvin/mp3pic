@@ -25,3 +25,7 @@
 @test:
   echo 'Run pytest'
   uv run pytest -vv
+
+# Write 'ty check' results to temp.txt
+@ty:
+  uvx ty check > temp.txt

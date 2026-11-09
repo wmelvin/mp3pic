@@ -14,7 +14,7 @@ from mutagen.mp3 import MP3
 from PIL import Image
 
 #  Using calver (YYYY.0M.MICRO).
-__version__ = "2026.01.1"
+__version__ = "2026.11.1"
 
 app_title = f"mp3pic.py (v{__version__})"
 

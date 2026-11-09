@@ -7,8 +7,8 @@ name = "mp3pic"
 dynamic = ["version"]
 description = 'Command-line utility to add a cover-art image to a mp3 file.'
 readme = "README.md"
-requires-python = ">=3.10"
-license = {file = "LICENSE"}
+requires-python = ">=3.11"
+license = "MIT"
 keywords = [ "mp3", "id3"]
 
 authors = [
@@ -16,8 +16,8 @@ authors = [
 ]
 
 dependencies = [
- "mutagen",
- "pillow",
+    "mutagen>=1.48.1",
+    "pillow>=13.0.0",
 ]
 
 [project.urls]
@@ -71,8 +71,8 @@ ignore = ["ISC001"]
 
 [dependency-groups]
 dev = [
-    "build>=1.2.2.post1",
-    "pytest>=8.3.5",
-    "python-dotenv>=1.0.1",
-    "ruff>=0.11.9",
+    "build>=1.6.1",
+    "pytest>=9.2.0",
+    "python-dotenv>=1.2.4",
+    "ruff>=0.17.4",
 ]

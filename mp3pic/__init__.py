@@ -225,7 +225,10 @@ def main(arglist=None):  # noqa: PLR0912
         if str(e) != "an ID3 tag already exists":
             raise e
 
-    mime_type = "image/png" if opt.image_path.suffix.lower() == ".png" else "image/jpeg"
+    # The embedded bytes always come from the temporary image file, which
+    # make_temp_image_file saves as JPEG, so the MIME type is always JPEG
+    # even when the source image was a PNG.
+    mime_type = "image/jpeg"
 
     image_data = tmpimg_path.open("rb").read()
 
